@@ -1,0 +1,128 @@
+{% extends "masterPage.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-1">
+
+    </div>
+        <div class="col-6">
+            <div class="section">
+                <div class="panel panel--loose panel--raised base-margin-bottom" style="padding: 50px;">
+                    <h2 class="subtitle">Step 1: Define floorplan details</h2><hr>
+
+                    <form action="/" method="post" enctype = "multipart/form-data">
+
+                        <div class="row">
+                            <!--Orga fields-->
+                            <div class="form-group base-margin-bottom">
+                                <div class="form-group__text select" style="width: 500px;">
+                                    <select name="organizations_select" id='organizations_select' required>
+                                        <option disabled selected hidden value="0">Please choose...</option>
+                                        {% for orga in dropdown_content %}<option value="{{orga.orgaid}}" {% if selected_elements.organization == orga.orgaid %} selected {% endif %}>{{orga.organame}} (ID:{{orga.orgaid}})</option>{% endfor %}
+                                    </select>
+                                    <label for="organizations_select">Organization*</label>
+                                </div>
+                            </div>
+
+                            <!--Network fields-->
+                            {% for orga in dropdown_content %}
+                            <div id="{{orga.orgaid}}" class="network-select" {% if selected_elements.organization != orga.orgaid %} hidden {% endif %}>
+                                <div class="form-group base-margin-bottom">
+                                    <div class="form-group__text select" style="width: 500px;">
+                                        <select name="network" class='networks'>
+                                            <option disabled selected hidden value="0">Please choose...</option>
+                                            {% for network in orga['networks'] %}
+                                                <option value="{{network['networkid']}}" {% if selected_elements.network_id == network['networkid'] %} selected {% endif %}>{{network['networkname']}} (ID:{{network['networkid']}})</option>                                                      
+                                            {% endfor %}
+                                        </select>
+                                        <label for="network">Network*</label>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    
+                        <!--Floorplan-->
+                        <div class="row" style="margin-top: 20px;">
+                            <div class="form-group base-margin-bottom" style="width: 500px;">
+                                <div class="form-group__text">
+                                    <input id="floorplan" type="file" name="floorplan" value="" required="">
+                                    <label for="floorplan">Floorplan*</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Location -->
+                        <style type="text/css">
+                        #map{ width:700px; height: 500px; }
+                        </style>
+                        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js"></script>
+
+                        <div class="row" style="margin-top: 20px;">
+                            <div class="form-group base-margin-bottom" style="width: 500px;">
+                                <div class="form-group__text">
+                                    <input type="text" id="lat" name="latitude" readonly="yes" required="">
+                                    <label for="lat">Location (Select on map)*</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group base-margin-bottom" style="width: 500px;">
+                                <div class="form-group__text">
+                                    <input type="text" id="lng" name="longitude" readonly="yes" required="">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="map"></div>
+
+                        
+                        <script type="text/javascript" src="{{ url_for('static', filename='js/map.js') }}"></script>
+
+
+                        
+                    
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-4">
+            <div class="section">
+                <div class="panel panel--loose panel--raised base-margin-bottom" style="padding: 50px;">
+                    <h2 class="subtitle">Step 2: Submit floorplan</h2><hr>
+
+
+                    <div class="section">
+                        <div class="row">
+                            <button id="submit-file" onclick="this.innerHTML='Loading...'" style="color: white;font-size: large;margin-bottom: 40px;" class="btn btn--primary" type="submit">Submit floorplan</button>
+                        </div>
+
+                        </form>
+                        {% if success %}
+                        <div class="toast base-margin-bottom">
+                            <div class="toast__icon text-success icon-check-outline"></div>
+                            <div class="toast__body">
+                                <div class="toast__title">Upload Complete</div>
+                                <div class="toast__message">Successfully uploaded file </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if error %}
+                        <div class="toast base-margin-bottom">
+                            <div class="toast__icon text-danger icon-error-outline"></div>
+                            <div class="toast__body">
+                                <div class="toast__title">Upload Failed</div>
+                                <div class="toast__message">Failed to uplaod file </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    
+                    
+                    
+                </div>
+            </div>
+            </div>
+        </div>
+</div>
+{%  endblock %}
