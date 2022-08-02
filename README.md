@@ -1,5 +1,5 @@
 # GVE DevNet Meraki Floorplan Import from Ekahau
-This prototype allows for uploading a Ekahau heatmap to a Meraki dashboard as a network floorplan. Given a user's input of (1) a Meraki network, (2) an Ekahau heatmap and (3) the geographical coordinates of its location, the tool uploads the floorplan image to the Meraki cloud, as well as places the corresponding access points on it. 
+This prototype allows for uploading Ekahau heatmap to a Meraki dashboard as a network floorplan. Given a user's input of (1) a Meraki network, (2) an Ekahau heatmap and (3) the geographical coordinates of its location, the tool uploads the floorplan image to the Meraki cloud, as well as places the corresponding access points on it. 
 
 ## Prototype Overview
 
