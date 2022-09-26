@@ -23,11 +23,16 @@ from meraki import DashboardAPI
 def create_floorplans(floorplans, network, latitude, longitude):
     for i in floorplans:
         drawing = svg2rlg('floorplan/image-' + i["imageId"])
-        renderPM.drawToFile(drawing, f"floorplan/image-{i['imageId']}.png", fmt='PNG')
-
-        with open("floorplan/image-"+i["imageId"]+".png", "rb") as img_file:
-            b64_string = base64.b64encode(img_file.read())
-        imgstring= b64_string.decode('utf-8')
+        imgstring = None
+        if type(drawing) != type(None):
+            renderPM.drawToFile(drawing, f"floorplan/image-{i['imageId']}.png", fmt='PNG') 
+            with open("floorplan/image-"+i["imageId"]+".png", "rb") as img_file:
+                b64_string = base64.b64encode(img_file.read())
+                imgstring= b64_string.decode('utf-8')
+        else: 
+            with open("floorplan/image-"+i["imageId"]+"", "rb") as img_file:
+                b64_string = base64.b64encode(img_file.read())
+                imgstring= b64_string.decode('utf-8')
 
         headers = {
                 "Content-Type": "application/json",
@@ -66,9 +71,7 @@ def place_devices_on_fp(floorplans, network):
         for fp in floorplans:
             if ap["location"]["floorPlanId"] == fp["id"]:
                 for device in m.networks.getNetworkDevices(network):
-                    print(device)
-                    print(ap['name'])
-                    if "MR" in device['model'] and device["mac"] == ap['name']:
+                    if "MR" in device['model'] and device["name"] == ap['name']:
                         url = "https://api.meraki.com/api/v1/devices/"+device["serial"] 
                         headers = {
                             "Content-Type": "application/json",
@@ -79,7 +82,6 @@ def place_devices_on_fp(floorplans, network):
                         device['lat'] = fp['bottomLeft-Meraki']['lat'] + (ap["location"]["coord"]["y"]/fp['height'])*fp['height-Meraki']
                         device['floorPlanId'] = fp["floorPlanId-Meraki"]
                         response = requests.request('PUT', url, headers=headers, json=device)
-                        print(response.text)
     ap_file.close()
 
     

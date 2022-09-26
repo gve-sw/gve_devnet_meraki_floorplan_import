@@ -66,7 +66,8 @@ def index():
         try:
             fp.create_floorplans(floorplans, selected_network, latitude, longitude)
             return render_template('home.html', hiddenLinks=True, dropdown_content=get_orgs_and_networks(), selected_elements={'organization':selected_org, 'networkid':selected_network}, success=True)
-        except:
+        except Exception as e:
+            print(e)
             return render_template('home.html', hiddenLinks=True, dropdown_content=get_orgs_and_networks(), selected_elements={'organization':selected_org, 'networkid':selected_network}, error=True)
 
     return render_template('home.html', hiddenLinks=True, dropdown_content=get_orgs_and_networks(), selected_elements={'organization':selected_org, 'networkid':selected_network})
