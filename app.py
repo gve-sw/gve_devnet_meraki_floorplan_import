@@ -20,6 +20,7 @@ import floorplans as fp
 app = Flask(__name__)
 
 FLOORPLAN_FILENAME = "floorplan"
+SUFFIX = 'com'
 
 #Read data from json file
 def getJson(filepath):
@@ -37,6 +38,7 @@ def writeJson(filepath, data):
 
 @app.route('/', methods=["GET", "POST"])
 def index():
+    global SUFFIX
     selected_org=None
     selected_network=None
     # Floorplan upload
@@ -64,17 +66,23 @@ def index():
             floorplans = json.load(f)['floorPlans']
         
         try:
-            fp.create_floorplans(floorplans, selected_network, latitude, longitude)
+            fp.create_floorplans(floorplans, selected_network, latitude, longitude, SUFFIX)
             return render_template('home.html', hiddenLinks=True, dropdown_content=get_orgs_and_networks(), selected_elements={'organization':selected_org, 'networkid':selected_network}, success=True)
         except Exception as e:
-            print(e)
+            print("This is the exception: " + str(e))
             return render_template('home.html', hiddenLinks=True, dropdown_content=get_orgs_and_networks(), selected_elements={'organization':selected_org, 'networkid':selected_network}, error=True)
 
     return render_template('home.html', hiddenLinks=True, dropdown_content=get_orgs_and_networks(), selected_elements={'organization':selected_org, 'networkid':selected_network})
 
 def get_orgs_and_networks():
+    global SUFFIX
     apikey = os.environ['MERAKI_API_KEY']
-    m = DashboardAPI(apikey)
+    m = DashboardAPI(apikey, base_url='http://api.meraki.com/api/v1')
+    try:
+        m.organizations.getOrganizations()
+    except:
+        SUFFIX = 'cn'
+        m = DashboardAPI(apikey, base_url='http://api.meraki.cn/api/v1')
     result = []
     for org in m.organizations.getOrganizations():
         org_entry = {
@@ -82,12 +90,15 @@ def get_orgs_and_networks():
             "organame" : org['name'],
             "networks" : []
         }
-        for network in m.organizations.getOrganizationNetworks(org['id']):
-            org_entry['networks'] += [{
-                'networkid' : network['id'],
-                'networkname' : network['name']
-            }]
-        result += [org_entry]
+        try:
+            for network in m.organizations.getOrganizationNetworks(org['id']):
+                org_entry['networks'] += [{
+                    'networkid' : network['id'],
+                    'networkname' : network['name']
+                }]
+            result += [org_entry]
+        except:
+            print('Broken org: ' + org['name'])
     return result
 
 if __name__ == '__main__':
