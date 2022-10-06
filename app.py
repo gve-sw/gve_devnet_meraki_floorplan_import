@@ -11,11 +11,13 @@ IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
 or implied. 
 """
 
+from email import header
 from flask import Flask, render_template, request
 from dotenv import load_dotenv
 from meraki import DashboardAPI
 import zipfile, json, os
 import floorplans as fp
+import requests
 
 app = Flask(__name__)
 
@@ -77,12 +79,12 @@ def index():
 def get_orgs_and_networks():
     global SUFFIX
     apikey = os.environ['MERAKI_API_KEY']
-    m = DashboardAPI(apikey, base_url='http://api.meraki.com/api/v1')
+    m = DashboardAPI(apikey, base_url='https://api.meraki.com/api/v1')
     try:
         m.organizations.getOrganizations()
     except:
         SUFFIX = 'cn'
-        m = DashboardAPI(apikey, base_url='http://api.meraki.cn/api/v1')
+        m = DashboardAPI(apikey, base_url='https://api.meraki.cn/api/v1')
     result = []
     for org in m.organizations.getOrganizations():
         org_entry = {
@@ -92,7 +94,7 @@ def get_orgs_and_networks():
         }
         try:
             for network in m.organizations.getOrganizationNetworks(org['id']):
-                org_entry['networks'] += [{
+                org_entry['networks'] += [{ 
                     'networkid' : network['id'],
                     'networkname' : network['name']
                 }]

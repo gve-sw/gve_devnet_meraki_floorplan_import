@@ -67,13 +67,12 @@ def place_devices_on_fp(floorplans, network, suffix):
     floorplans=floorplans
     ap_file = open('floorplan/accessPoints.json')
     data = json.load(ap_file)
-    m = DashboardAPI(os.environ['MERAKI_API_KEY'], base_url=f"http://api.meraki.{suffix}/api/v1")
+    m = DashboardAPI(os.environ['MERAKI_API_KEY'], base_url=f"https://api.meraki.{suffix}/api/v1")
+    devices = m.networks.getNetworkDevices(network)
     for ap in data['accessPoints']:
         for fp in floorplans:
             if ap["location"]["floorPlanId"] == fp["id"]:
-                devices = m.networks.getNetworkDevices(network)
-                print(devices)
-                for device in m.networks.getNetworkDevices(network):
+                for device in devices:
                     if "MR" in device['model'] and 'name' in device and device["name"] == ap['name']:
                         url = f"https://api.meraki.{suffix}/api/v1/devices/"+device["serial"] 
                         headers = {
@@ -84,7 +83,7 @@ def place_devices_on_fp(floorplans, network, suffix):
                         device['lng'] = fp['bottomLeft-Meraki']['lng'] + (ap["location"]["coord"]["x"]/fp['width'])*fp['width-Meraki']
                         device['lat'] = fp['bottomLeft-Meraki']['lat'] + (ap["location"]["coord"]["y"]/fp['height'])*fp['height-Meraki']
                         device['floorPlanId'] = fp["floorPlanId-Meraki"]
-                        response = requests.request('PUT', url, headers=headers, json=device)
+                        requests.request('PUT', url, headers=headers, json=device)
     ap_file.close()
 
     
