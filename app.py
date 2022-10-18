@@ -18,6 +18,7 @@ from meraki import DashboardAPI
 import zipfile, json, os
 import floorplans as fp
 import requests
+import pyvips
 
 app = Flask(__name__)
 

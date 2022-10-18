@@ -16,3 +16,4 @@ urllib3==1.25.10
 webexteamssdk==1.6
 Werkzeug==1.0.1
 dnacentersdk==2.0.2
+pyvips
